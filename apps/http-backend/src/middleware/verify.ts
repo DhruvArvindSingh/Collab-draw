@@ -12,7 +12,7 @@ export default function verify(req: Request, res: Response, next: NextFunction) 
             if (err) {
                 res.status(401).json({ message: "Unauthorized" });
             } else {
-                req.body.email = decoded.email;
+                req.body.userId = decoded.userId;
                 next();
             }
         });

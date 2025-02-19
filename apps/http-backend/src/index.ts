@@ -8,7 +8,6 @@ import signin_post from "./controllers/signin_post.js";
 import create_room from "./controllers/create_room.js";
 import check_email from "./middleware/check_email.js";
 import validate_users from "./middleware/validate_users.js";
-
 import dotenv from "dotenv";
 import verify from "./middleware/verify.js";
 

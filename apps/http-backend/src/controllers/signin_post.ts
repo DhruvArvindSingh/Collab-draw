@@ -21,7 +21,7 @@ export default async function signin_post(req: Request, res: Response){
     const user_email = ress?.email;
     console.log("user_email = ", user_email);
     if (ress !== null) {
-        const token = jwt.sign({ email: user_email }, JWT_SECRET as string);
+        const token = jwt.sign({ userId: ress?.id }, JWT_SECRET as string);
         console.log("token = ", token);
         res.cookie("token", token);
         // res.setHeader("token",token);
