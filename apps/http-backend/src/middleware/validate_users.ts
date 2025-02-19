@@ -8,13 +8,13 @@ export default async function validate_users(req: Request, res: Response, next: 
     const email = await get_user(req.body.email, "email");
     // console.log("user =", user);
     // console.log("email =", email);
-    if(user.rows.length === 0 && email.rows.length === 0){
+    if(user === null && email === null){
         next();
     }
     else{
-        console.log("user.rows.length =", user.rows.length);
-        console.log("email.rows.length =", email.rows.length);
-        if(user.rows.length !== 0){
+        console.log("user.rows.length =", user);
+        console.log("email.rows.length =", email);
+        if(user !== null){
             console.log("Username already exists");
             res.status(401).json({ message: "Username already exists" });
         }

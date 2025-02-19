@@ -5,7 +5,7 @@ export default async function check_email(req: Request, res: Response, next: Nex
     console.log("check_user called");
     console.log("req.body =", req.body);
     const user = await get_user(req.body.email, "email");
-    if (user.rows.length === 0) {
+    if (user === null) {  
         res.status(401).json({ message: "Email not found" });
     }
     else {

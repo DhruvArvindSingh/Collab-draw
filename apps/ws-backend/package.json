@@ -11,6 +11,10 @@
   "keywords": [],
   "type": "module",
   "dependencies": {
+    "@types/dotenv": "^8.2.3",
+    "@types/jsonwebtoken": "^9.0.8",
+    "dotenv": "^16.4.7",
+    "jsonwebtoken": "^9.0.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {

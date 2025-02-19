@@ -9,7 +9,7 @@ export default async function signup_post(req: Request, res: Response) {
         // Insert user into the database
         const user = await insert_user(username, email, password);
 
-        console.log("Signup successful for:", user.rows[0]);
+        console.log("Signup successful for:", user);
 
         // Redirect to the signin page
         res.status(200).json({ message: "Signup successful" });

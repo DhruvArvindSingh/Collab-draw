@@ -24,6 +24,7 @@
     "types": "link:/cors"
   },
   "devDependencies": {
+    "@repo/db": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/express": "^5.0.0"
   },
