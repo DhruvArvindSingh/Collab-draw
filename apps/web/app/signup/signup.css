@@ -1,0 +1,148 @@
+.signup-container {
+    display: grid;
+    grid-template-rows: 20px 1fr 20px;
+    align-items: center;
+    justify-items: center;
+    min-height: 100svh;
+    padding: 80px;
+    gap: 64px;
+}
+
+.signup-box {
+    width: 100%;
+    max-width: 400px;
+    grid-row-start: 2;
+}
+
+.signup-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: var(--foreground);
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.error-message {
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--gray-alpha-100);
+}
+
+.error-message p {
+    color: #dc2626;
+    font-size: 0.875rem;
+}
+
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-fields>div {
+    position: relative;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.input-field {
+    height: 48px;
+    width: 100%;
+    padding: 0 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--gray-alpha-200);
+    background: transparent;
+    color: var(--foreground);
+    font-size: 16px;
+    transition: border-color 0.2s;
+    margin: 0;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--foreground);
+    z-index: 1;
+}
+
+.form-fields>div:not(:last-child) {
+    margin-bottom: 1rem;
+}
+
+.submit-button {
+    appearance: none;
+    border-radius: 128px;
+    height: 48px;
+    padding: 0 20px;
+    border: none;
+    font-family: var(--font-geist-sans);
+    background: var(--foreground);
+    color: var(--background);
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.submit-button:hover {
+    background: var(--button-primary-hover);
+}
+
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.signin-link-text {
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--foreground);
+}
+
+.signin-link {
+    color: var(--foreground);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.signin-link:hover {
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .signup-container {
+        padding: 32px;
+        padding-bottom: 80px;
+    }
+
+    .signup-box {
+        width: 100%;
+    }
+
+    .submit-button {
+        font-size: 14px;
+        height: 40px;
+        padding: 0 16px;
+    }
+
+    .input-field {
+        height: 40px;
+    }
+}

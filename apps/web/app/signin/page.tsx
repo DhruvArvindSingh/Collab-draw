@@ -1,5 +1,6 @@
 'use client';
 import styles from "./page.module.css";
+import "../globals.css"
 import axios from 'axios';
 import dotenv from 'dotenv';
 import Cookies from 'js-cookie';

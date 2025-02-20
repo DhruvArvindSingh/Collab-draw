@@ -27,8 +27,10 @@ export default function Home() {
               type="text"
               placeholder="Enter room code"
               className={styles.roomInput}
+              value={roomCode}
+              onChange={(e) => setRoomCode(e.target.value)}
             />
-            <button className={styles.primary}>Join</button>
+            <button className={styles.primary} onClick={() => router.push(`/room/${roomCode}`)}>Join</button>
           </div>
         </div>
       </main>

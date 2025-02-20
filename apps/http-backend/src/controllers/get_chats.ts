@@ -16,7 +16,7 @@ export default async function get_chats(req: Request, res: Response){
             user: true,
         },
         orderBy: {
-            createdAt: "desc"
+            id: "desc"
         },
         take:50
     });
