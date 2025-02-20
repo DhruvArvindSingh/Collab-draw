@@ -1,5 +1,6 @@
 import { WebSocketServer, WebSocket } from "ws";
 import jwt from "jsonwebtoken";
+import { client } from "@repo/db/client";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -29,13 +30,13 @@ function verify_token(token: string): string | null {
     return decoded.userId;
 }
 
-wss.on("connection", function connection(ws, request){
+wss.on("connection", async function connection(ws, request) {
     console.log("Client connected");
     const url = request.url;
     if (!url) {
         return;
     }
-    try{
+    try {
         const queryParams = new URLSearchParams(url.split("?")[1]);
         const token = queryParams.get("token") || "";
         // console.log("token =", token);
@@ -53,28 +54,28 @@ wss.on("connection", function connection(ws, request){
         });
         console.log("users =", users);
     }
-    catch(error){
+    catch (error) {
         ws.close();
         console.log("Unauthorized user with no token");
         return;
     }
 
 
-    ws.on("message", (message) => {
+    ws.on("message", async (message) => {
         const data = JSON.parse(message.toString());
-        if (data.type === "join_room") {
+        if (data.type === "join_room") { //{type: "join_room", room_id: "1"}
             const user = users.find((user) => user.ws === ws);
-            if(user?.room_id.includes(data.room_id)){
+            if (user?.room_id.includes(data.room_id)) {
                 console.log("user already in room");
                 return;
             }
             user?.room_id.push(data.room_id);
             console.log("join_room user =", user);
         }
-        if (data.type === "leave_room") {
+        if (data.type === "leave_room") { //{type: "leave_room", room_id: "1"}
             const user = users.find((user) => user.ws === ws);
             if (user) {
-                if(!user?.room_id.includes(data.room_id)){
+                if (!user?.room_id.includes(data.room_id)) {
                     console.log("user not in room");
                     return;
                 }
@@ -86,9 +87,30 @@ wss.on("connection", function connection(ws, request){
             }
         }
         if (data.type === "chat") {
+            //{type: "chat", message: "hello", room_id: "1"}
+            const message = data.message;
+            const room_id = data.room_id;
+            console.log("chat message =", message);
+            console.log("chat room_id =", room_id);
+            const user = users.find((user) => user.ws === ws);
+            if (!user) {
+                console.log("user not found");
+                return;
+            }
+            const res = await client.chat.create({
+                data: {
+                    message: message,
+                    roomID: parseInt(room_id),
+                    userID: user.user_id
+                }
+            });
             users.forEach((user) => {
-                if (user.room_id.includes(data.room_id)) {
-                    user.ws.send(JSON.stringify({ type: "chat", message: data.message, room_id: data.room_id }));
+                if (user.room_id.includes(room_id)) {
+                    user.ws.send(JSON.stringify({
+                        type: "chat",
+                        message: message,
+                        room_id: room_id
+                    }));
                 }
             });
         }
