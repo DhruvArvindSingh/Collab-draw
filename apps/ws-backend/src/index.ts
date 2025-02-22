@@ -62,8 +62,10 @@ wss.on("connection", async function connection(ws, request) {
 
 
     ws.on("message", async (message) => {
+        console.log("message =", message);
         const data = JSON.parse(message.toString());
         if (data.type === "join_room") { //{type: "join_room", room_id: "1"}
+            console.log("join_room data =", data);
             const user = users.find((user) => user.ws === ws);
             if (user?.room_id.includes(data.room_id)) {
                 console.log("user already in room");
@@ -86,12 +88,14 @@ wss.on("connection", async function connection(ws, request) {
                 return;
             }
         }
-        if (data.type === "chat") {
+        if (data.type === "update_shape") {
             //{type: "chat", message: "hello", room_id: "1"}
-            const message = data.message;
+            const shape = data.shape;
             const room_id = data.room_id;
-            console.log("chat message =", message);
-            console.log("chat room_id =", room_id);
+            // console.log("shape shape =", shape);
+            // console.log("shape type =", typeof shape);
+            // console.log("shape.x =", shape.x);
+            // console.log("shape room_id =", room_id);
             const user = users.find((user) => user.ws === ws);
             if (!user) {
                 console.log("user not found");
@@ -99,7 +103,7 @@ wss.on("connection", async function connection(ws, request) {
             }
             const res = await client.shape.create({
                 data: {
-                    shape: message,
+                    shape: shape,
                     roomID: parseInt(room_id),
                     userID: user.user_id
                 }
@@ -107,8 +111,8 @@ wss.on("connection", async function connection(ws, request) {
             users.forEach((user) => {
                 if (user.room_id.includes(room_id)) {
                     user.ws.send(JSON.stringify({
-                        type: "chat",
-                        message: message,
+                        type: "update_shape",
+                        shape: shape,
                         room_id: room_id
                     }));
                 }

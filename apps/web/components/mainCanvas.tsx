@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import Draw from "../draw/index";
+import getExistingShapes from "../draw/getExistingShapes";
 
 export default function mainCanvas({
     shape,
@@ -11,8 +12,8 @@ export default function mainCanvas({
     room_id: string
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    let Shape: any[] = [];
-
+    let Shape: any;
+    Shape = getExistingShapes(room_id);
 
 
     useEffect(() => {
@@ -22,7 +23,7 @@ export default function mainCanvas({
             const canvas = canvasRef.current;
             // console.log("shape:", shape);
             // console.log('canvasRef.current', canvasRef.current);
-            Draw(canvas, 2000, 2000, shape, room_id, socket);
+            Draw(canvas, 2000, 2000, shape, room_id, socket, Shape);
             // ctx.fillRect(0, 0, canvas.width, canvas.he   ight);
         }
         return () => {
@@ -33,3 +34,6 @@ export default function mainCanvas({
         <canvas ref={canvasRef} width={2000} height={2000}></canvas>
     )
 }
+
+
+

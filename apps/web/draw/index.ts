@@ -17,36 +17,35 @@ interface Circle {
 }
 type Shape = any;
 let Shape: Shape[] = [];
-export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_height: number, shape: string, room_id: string, socket: WebSocket) {
+export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_height: number, shape: string, room_id: string, socket: WebSocket, ExistingShape: any) {
     const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    if (Array.isArray(ExistingShape)) {
+        ExistingShape.map((item: any) => {
+            console.log("item", item);
+        });
+    } else {
+        console.log("ExistingShape:", ExistingShape);
+    }
     let clicked = false;
-    console.log("Shape", Shape);
     let startX = 0;
     let startY = 0;
     let width = 0;
     let height = 0;
-    if (!ctx) return;
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // getExistingShapes(room_id);
-
-
-    canvas.addEventListener("mousedown", (e) => {
+    // Define event handlers
+    const handleMouseDown = (e: MouseEvent) => {
         clicked = true;
         startX = e.clientX;
         startY = e.clientY;
-        // console.log(shape);
-        // console.log(`mousedown at ${e.clientX}x${e.clientY}`);
-        // ctx.fillRect(0, 0, canvas.width, canvas.height);
-    });
-    canvas.addEventListener("mousemove", (e) => {
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
         if (clicked) {
-            // console.log(`mousemove at ${e.clientX}x${e.clientY}`);
             width = e.clientX - startX;
             height = e.clientY - startY;
             drawShape(Shape, ctx, canvas);
-            getExistingShapes(room_id);
             if (shape === "rect") {
                 ctx.strokeStyle = "white";
                 ctx.strokeRect(startX, startY, width, height);
@@ -58,23 +57,49 @@ export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_heigh
                 ctx.stroke();
             }
         }
-    });
-    canvas.addEventListener("mouseup", (e) => {
-        clicked = false;
-        // console.log(`mouseup at ${e.clientX}x${e.clientY}`);
-        if (shape === "rect") {
-            console.log("shape: ", shape);
-            console.log("rect: ", startX, startY, width, height);
-            Shape.push({ x: startX, y: startY, width: width, height: height, type: "rect" });
-            return;
-        } else if (shape === "circle") {
-            console.log("shape: ", shape);
-            console.log("circle: ", startX, startY, Math.sqrt(width * width + height * height));
-            Shape.push({ x: startX, y: startY, radius: Math.sqrt(width * width + height * height), type: "circle" });
-            return;
-        }
-    });
+    };
 
+    const handleMouseUp = (e: MouseEvent) => {
+        clicked = false;
+        if (shape === "rect") {
+            Shape.push({ x: startX, y: startY, width: width, height: height, type: "rect" });
+            socket.send(JSON.stringify({
+                type: "update_shape",
+                room_id: room_id,
+                shape: `{ x: ${startX}, y: ${startY}, width: ${width}, height: ${height}, type: "rect" }`
+            }));
+
+        } else if (shape === "circle") {
+            Shape.push({ x: startX, y: startY, radius: Math.sqrt(width * width + height * height), type: "circle" });
+            socket.send(JSON.stringify({
+                type: "update_shape",
+                room_id: room_id,
+                shape: `{ x: ${startX}, y: ${startY}, radius: ${Math.sqrt(width * width + height * height)}, type: "circle" }`
+            }));
+        }
+
+    };
+
+    // Clean up previous listeners and add new ones
+    canvas.removeEventListener("mousedown", handleMouseDown);
+    canvas.removeEventListener("mousemove", handleMouseMove);
+    canvas.removeEventListener("mouseup", handleMouseUp);
+
+    canvas.addEventListener("mousedown", handleMouseDown);
+    canvas.addEventListener("mousemove", handleMouseMove);
+    canvas.addEventListener("mouseup", handleMouseUp);
+
+    // Initial setup
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawShape(Shape, ctx, canvas);
+
+    // Return cleanup function
+    return () => {
+        canvas.removeEventListener("mousedown", handleMouseDown);
+        canvas.removeEventListener("mousemove", handleMouseMove);
+        canvas.removeEventListener("mouseup", handleMouseUp);
+    };
 }
 
 function drawShape(Shape: Shape[], ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
@@ -97,5 +122,5 @@ function drawShape(Shape: Shape[], ctx: CanvasRenderingContext2D, canvas: HTMLCa
 
 function getExistingShapes(room_id: string) {
     // console.log("room_id", room_id);
-    
+
 }

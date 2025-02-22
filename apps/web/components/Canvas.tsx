@@ -15,6 +15,11 @@ export default function Canvas({
         socket.onopen = () => {
             setSocket(socket);
             console.log("Connected to server");
+            socket.send(JSON.stringify({
+                type: "join_room",
+                room_id: room_id
+            }));
+            
         };
     }, []);
 

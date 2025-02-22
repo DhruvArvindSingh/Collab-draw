@@ -1,17 +1,14 @@
 import { Request, Response } from "express";
-import { client} from "@repo/db/client";
+import { client } from "@repo/db/client";
 export default async function create_room(req: Request, res: Response) {
     console.log("create_room called");
     console.log("req.body =", req.body);
     try {
-        const name = req.body.name;
-        console.log("name =", name);
         // @ts-ignore
         const user = req.body.userId;
-        try{
+        try {
             const room = await client.room.create({
                 data: {
-                    name: name,
                     adminID: user
                 }
             });
