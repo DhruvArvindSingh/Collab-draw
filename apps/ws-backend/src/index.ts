@@ -97,9 +97,9 @@ wss.on("connection", async function connection(ws, request) {
                 console.log("user not found");
                 return;
             }
-            const res = await client.chat.create({
+            const res = await client.shape.create({
                 data: {
-                    message: message,
+                    shape: message,
                     roomID: parseInt(room_id),
                     userID: user.user_id
                 }

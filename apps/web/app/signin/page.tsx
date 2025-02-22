@@ -2,14 +2,12 @@
 import styles from "./page.module.css";
 import "../globals.css"
 import axios from 'axios';
-import dotenv from 'dotenv';
 import Cookies from 'js-cookie';
-dotenv.config();
+import { HTTP_URL } from "../../config/index";
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function SignIn() {
-    const {HTTP_URL} = process.env;
     const router = useRouter();
     const [formData, setFormData] = useState({
         email: '',
@@ -23,15 +21,19 @@ export default function SignIn() {
             let response;
             console.log(`${HTTP_URL}/signin`);
             try{
-                response = await axios.post(`http://localhost:81/signin`, formData);
+                response = await axios.post(`${HTTP_URL}/signin`, formData);
+                console.log("response", response);
+                console.log("response.data", response.data);
             }catch(error){
                 console.error('Error while fetching data:', error);
                 return;
             }
-            if(response.status === 200 && response.data.token !== null){
-                Cookies.set("token", response.data.token);
+            if(response.status === 200 && response.data.cookie !== null){
+                Cookies.set("token", response.data.cookie);
+                localStorage.setItem("token", response.data.cookie);
+                router.push(`/`);
             }
-                localStorage.setItem("token", response.data.token);
+
         } catch (error) {
             console.error('Sign in error:', error);
         }

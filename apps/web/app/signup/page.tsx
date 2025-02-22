@@ -5,6 +5,7 @@ import "../globals.css"
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import axios from 'axios';
+import { HTTP_URL } from '../../config/index';
 import './signup.css'
 
 export default function SignupPage() {
@@ -23,7 +24,7 @@ export default function SignupPage() {
         const password = formData.get('password')
 
         try {
-            const response = await axios.post('http://localhost:81/signup', {
+            const response = await axios.post(`${HTTP_URL}/signup`, {
                 username,
                 email,
                 password

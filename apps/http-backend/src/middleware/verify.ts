@@ -5,6 +5,9 @@ dotenv.config();
 
 const { JWT_SECRET } = process.env;
 export default function verify(req: Request, res: Response, next: NextFunction) {
+    // console.log("req.cookies", req.cookies);
+    // console.log("req.cookies", req.cookie);
+    // console.log("req", req);
     const token = req.cookies.token;
     console.log("token = ", token);
     if (token) {

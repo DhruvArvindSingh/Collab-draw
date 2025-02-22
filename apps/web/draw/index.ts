@@ -1,5 +1,6 @@
 // "use client";
-import { useState } from "react";   
+import { useState } from "react";
+
 
 interface Rectangle {
     x: number;
@@ -15,16 +16,21 @@ interface Circle {
     radius: number;
 }
 type Shape = any;
-export default function Draw(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, f_width: number, f_height: number, shape: string) {
+let Shape: Shape[] = [];
+export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_height: number, shape: string, room_id: string, socket: WebSocket) {
+    const ctx = canvas.getContext("2d");
     let clicked = false;
+    console.log("Shape", Shape);
     let startX = 0;
     let startY = 0;
     let width = 0;
     let height = 0;
+    if (!ctx) return;
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    let Shape: Shape[] = [];
+    // getExistingShapes(room_id);
+
 
     canvas.addEventListener("mousedown", (e) => {
         clicked = true;
@@ -40,6 +46,7 @@ export default function Draw(canvas: HTMLCanvasElement, ctx: CanvasRenderingCont
             width = e.clientX - startX;
             height = e.clientY - startY;
             drawShape(Shape, ctx, canvas);
+            getExistingShapes(room_id);
             if (shape === "rect") {
                 ctx.strokeStyle = "white";
                 ctx.strokeRect(startX, startY, width, height);
@@ -56,9 +63,15 @@ export default function Draw(canvas: HTMLCanvasElement, ctx: CanvasRenderingCont
         clicked = false;
         // console.log(`mouseup at ${e.clientX}x${e.clientY}`);
         if (shape === "rect") {
+            console.log("shape: ", shape);
+            console.log("rect: ", startX, startY, width, height);
             Shape.push({ x: startX, y: startY, width: width, height: height, type: "rect" });
+            return;
         } else if (shape === "circle") {
+            console.log("shape: ", shape);
+            console.log("circle: ", startX, startY, Math.sqrt(width * width + height * height));
             Shape.push({ x: startX, y: startY, radius: Math.sqrt(width * width + height * height), type: "circle" });
+            return;
         }
     });
 
@@ -80,4 +93,9 @@ function drawShape(Shape: Shape[], ctx: CanvasRenderingContext2D, canvas: HTMLCa
             ctx.stroke();
         }
     });
+}
+
+function getExistingShapes(room_id: string) {
+    // console.log("room_id", room_id);
+    
 }
