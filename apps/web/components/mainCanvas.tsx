@@ -5,11 +5,13 @@ import Game from "../draw/Game";
 export default function mainCanvas({
     S_shape,
     socket,
-    room_id
+    room_id,
+    color
 }: {
     S_shape: string,
     socket: WebSocket,
-    room_id: string
+    room_id: string,
+    color: string
 }) {
     const [game, setGame] = useState<Game | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -18,11 +20,14 @@ export default function mainCanvas({
     useEffect(() => {
         game?.setShape(S_shape);
     }, [game, S_shape]);
+    useEffect(() => {
+        game?.setColor(color);
+    }, [game, color]);
 
     useEffect(() => {
         if (canvasRef.current) {
             const canvas = canvasRef.current;
-            const g = new Game(canvas, S_shape, room_id, socket);
+            const g = new Game(canvas, S_shape, room_id, socket, color);
             setGame(g);
             return () => {
                 g.destroy();
