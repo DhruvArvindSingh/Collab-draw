@@ -16,5 +16,4 @@ export default async function CanvasPage({
     const { room_id } = await params;
     console.log("room_id", room_id);
     return <Canvas room_id={room_id} />
-    
 }

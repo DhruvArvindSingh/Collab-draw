@@ -37,7 +37,7 @@ export default function mainCanvas({
     }, [canvasRef, shape]);
 
     return (
-        <canvas ref={canvasRef} width={2000} height={2000}></canvas>
+        <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}></canvas>
     )
 }
 
