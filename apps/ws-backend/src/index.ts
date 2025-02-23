@@ -103,7 +103,7 @@ wss.on("connection", async function connection(ws, request) {
             }
             const res = await client.shape.create({
                 data: {
-                    shape: shape,
+                    shape: `${shape}`,
                     roomID: parseInt(room_id),
                     userID: user.user_id
                 }
@@ -111,9 +111,9 @@ wss.on("connection", async function connection(ws, request) {
             users.forEach((user) => {
                 if (user.room_id.includes(room_id)) {
                     user.ws.send(JSON.stringify({
-                        type: "update_shape",
-                        shape: shape,
-                        room_id: room_id
+                        'type': "update_shape",
+                        'shape': `${shape}`,
+                        'room_id': `${room_id}`
                     }));
                 }
             });

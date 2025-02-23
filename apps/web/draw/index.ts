@@ -19,14 +19,31 @@ type Shape = any;
 let Shape: Shape[] = [];
 export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_height: number, shape: string, room_id: string, socket: WebSocket, ExistingShape: any) {
     const ctx = canvas.getContext("2d");
+    console.log("ExistingShape", ExistingShape);    
     if (!ctx) return;
 
     if (Array.isArray(ExistingShape)) {
         ExistingShape.map((item: any) => {
-            console.log("item", item);
+            console.log("ExistingShape item", item);
+            Shape.push(item);
         });
     } else {
         console.log("ExistingShape:", ExistingShape);
+    }
+    socket.onmessage = (message) => {
+        console.log("message: New Shape", message);
+        const data = JSON.parse(message.data);
+        console.log("data", data);
+        if (data.type === "update_shape") {
+            console.log("message.data.shape", data.shape);
+            Shape.push(JSON.parse(data.shape));
+            console.log("Shape from socket message", Shape);
+            drawShape(Shape, ctx, canvas);
+        }
+        // const data = JSON.parse(message.data);
+        // if (data.type === "update_shape") {
+        //     Shape.push(data.shape);
+        // }
     }
     let clicked = false;
     let startX = 0;
@@ -64,19 +81,23 @@ export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_heigh
         if (shape === "rect") {
             Shape.push({ x: startX, y: startY, width: width, height: height, type: "rect" });
             socket.send(JSON.stringify({
-                type: "update_shape",
-                room_id: room_id,
-                shape: `{ x: ${startX}, y: ${startY}, width: ${width}, height: ${height}, type: "rect" }`
+                "type": "update_shape",
+                "room_id": room_id,
+                "shape": `{ "x": ${startX}, "y": ${startY}, "width": ${width}, "height": ${height}, "type": "rect" }`
             }));
 
         } else if (shape === "circle") {
             Shape.push({ x: startX, y: startY, radius: Math.sqrt(width * width + height * height), type: "circle" });
             socket.send(JSON.stringify({
-                type: "update_shape",
-                room_id: room_id,
-                shape: `{ x: ${startX}, y: ${startY}, radius: ${Math.sqrt(width * width + height * height)}, type: "circle" }`
+                "type": "update_shape",
+                "room_id": room_id,
+                "shape": `{ "x": ${startX}, "y": ${startY}, "radius": ${Math.sqrt(width * width + height * height)}, "type": "circle" }`
             }));
         }
+        canvas.removeEventListener("mousedown", handleMouseDown);
+        canvas.removeEventListener("mousemove", handleMouseMove);
+        canvas.removeEventListener("mouseup", handleMouseUp);
+        return;
 
     };
 
@@ -118,9 +139,4 @@ function drawShape(Shape: Shape[], ctx: CanvasRenderingContext2D, canvas: HTMLCa
             ctx.stroke();
         }
     });
-}
-
-function getExistingShapes(room_id: string) {
-    // console.log("room_id", room_id);
-
 }

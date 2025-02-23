@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import Draw from "../draw/index";
 import getExistingShapes from "../draw/getExistingShapes";
 
@@ -11,25 +11,31 @@ export default function mainCanvas({
     socket: WebSocket,
     room_id: string
 }) {
+    const [Shape, setShape] = useState<any[]>([]);
+    const [shapesFetched, setShapesFetched] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    let Shape: any;
-    Shape = getExistingShapes(room_id);
-
 
     useEffect(() => {
-        // console.log("if value inside useEffect");
-        // console.log("canvasRef.current", canvasRef.current);
-        if (canvasRef.current) {
+        if (!shapesFetched) {
+            const fetchShapes = async () => {
+                const shapes = await getExistingShapes(room_id);
+                setShape(shapes);
+                setShapesFetched(true);
+            };
+            fetchShapes();
+        }
+    }, [shapesFetched, room_id]);
+
+    useEffect(() => {
+        if (canvasRef.current && shapesFetched) {
             const canvas = canvasRef.current;
-            // console.log("shape:", shape);
-            // console.log('canvasRef.current', canvasRef.current);
             Draw(canvas, 2000, 2000, shape, room_id, socket, Shape);
-            // ctx.fillRect(0, 0, canvas.width, canvas.he   ight);
         }
         return () => {
-            Shape = [];
+            setShape([]);
         }
     }, [canvasRef, shape]);
+
     return (
         <canvas ref={canvasRef} width={2000} height={2000}></canvas>
     )
