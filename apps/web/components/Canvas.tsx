@@ -88,8 +88,23 @@ export default function Canvas({
                 >
                     Line
                 </button>
+                <button
+                    style={{
+                        padding: '8px 16px',
+                        margin: '0 5px',
+                        border: 'none',
+                        borderRadius: '20px',
+                        backgroundColor: shape === "text" ? '#4CAF50' : '#555',
+                        color: 'white',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s'
+                    }}
+                    onClick={() => (shape !== "text")? setShape("text"): setShape("null")}
+                >
+                    Text
+                </button>
             </nav>
-            <MainCanvas socket={socket} shape={shape} room_id={room_id} />
+            <MainCanvas socket={socket} S_shape={shape} room_id={room_id} />
 
         </div>
     )

@@ -17,7 +17,7 @@ interface Circle {
 }
 type Shape = any;
 let Shape: Shape[] = [];
-export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_height: number, shape: string, room_id: string, socket: WebSocket, ExistingShape: any) {
+export default function Draw(canvas: HTMLCanvasElement, shape: string, room_id: string, socket: WebSocket, ExistingShape: any) {
     const ctx = canvas.getContext("2d");
     console.log("ExistingShape", ExistingShape);    
     if (!ctx) return;

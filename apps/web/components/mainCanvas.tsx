@@ -1,50 +1,38 @@
 import { useRef, useEffect, useState } from "react";
-import Draw from "../draw/index";
-import getExistingShapes from "../draw/getExistingShapes";
+import { useWindowSize } from "@uidotdev/usehooks";
+import Game from "../draw/Game";
 
 export default function mainCanvas({
-    shape,
+    S_shape,
     socket,
     room_id
 }: {
-    shape: string,
+    S_shape: string,
     socket: WebSocket,
     room_id: string
 }) {
-    const [Shape, setShape] = useState<any[]>([]);
-    const [shapesFetched, setShapesFetched] = useState(false);
+    const [game, setGame] = useState<Game | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const size = useWindowSize();
 
     useEffect(() => {
-        if (!shapesFetched) {
-            const fetchShapes = async () => {
-                const shapes = await getExistingShapes(room_id);
-                setShape(shapes);
-                setShapesFetched(true);
-            };
-            fetchShapes();
-        }
-    }, [shapesFetched]);
+        game?.setShape(S_shape);
+    }, [game, S_shape]);
 
     useEffect(() => {
-        if (canvasRef.current && shapesFetched) {
+        if (canvasRef.current) {
             const canvas = canvasRef.current;
-            Draw(canvas, 2000, 2000, shape, room_id, socket, Shape);
-        }
-        return () => {
-            if (canvasRef.current) {
-                const canvas = canvasRef.current;
-                canvas.removeEventListener("mousedown", () => {});
-                canvas.removeEventListener("mousemove", () => {});
-                canvas.removeEventListener("mouseup", () => {});
+            const g = new Game(canvas, S_shape, room_id, socket);
+            setGame(g);
+            return () => {
+                g.destroy();
             }
-            setShape([]);
         }
 
-    }, [canvasRef, shape]);
+    }, [canvasRef]);
 
     return (
-        <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight}></canvas>
+        <canvas ref={canvasRef} width={size.width ?? 0} height={size.height ?? 0}></canvas>
     )
 }
 

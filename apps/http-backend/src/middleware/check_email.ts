@@ -2,7 +2,7 @@ import get_user from "../database/utils/get_user.js";
 import { Request, Response, NextFunction } from "express";
 
 export default async function check_email(req: Request, res: Response, next: NextFunction) {
-    console.log("check_user called");
+    console.log("check_email middleware called");
     console.log("req.body =", req.body);
     const user = await get_user(req.body.email, "email");
     if (user === null) {  
