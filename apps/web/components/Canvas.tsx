@@ -18,10 +18,10 @@ export default function Canvas({
             socket.send(JSON.stringify({
                 type: "join_room",
                 room_id: room_id
-            }));
-            
+            }));  
         };
     }, []);
+    
 
     if (socket === null) {
         return (
@@ -49,14 +49,12 @@ export default function Canvas({
                         margin: '0 5px',
                         border: 'none',
                         borderRadius: '20px',
-                        backgroundColor: '#555',
+                        backgroundColor: shape === "rect" ? '#4CAF50' : '#555',
                         color: 'white',
                         cursor: 'pointer',
                         transition: 'background-color 0.3s'
                     }}
-                    onClick={() => {
-                        setShape("rect");
-                    }}
+                    onClick={() => (shape !== "rect")? setShape("rect"): setShape("null")}
                 >
                     Rectangle
                 </button>
@@ -66,12 +64,12 @@ export default function Canvas({
                         margin: '0 5px',
                         border: 'none',
                         borderRadius: '20px',
-                        backgroundColor: '#555',
+                        backgroundColor: shape === "circle" ? '#4CAF50' : '#555',
                         color: 'white',
                         cursor: 'pointer',
                         transition: 'background-color 0.3s'
                     }}
-                    onClick={() => setShape("circle")}
+                    onClick={() => (shape !== "circle")? setShape("circle"): setShape("null")}
                 >
                     Circle
                 </button>
@@ -81,12 +79,12 @@ export default function Canvas({
                         margin: '0 5px',
                         border: 'none',
                         borderRadius: '20px',
-                        backgroundColor: '#555',
+                        backgroundColor: shape === "line" ? '#4CAF50' : '#555',
                         color: 'white',
                         cursor: 'pointer',
                         transition: 'background-color 0.3s'
                     }}
-                    onClick={() => setShape("line")}
+                    onClick={() => (shape !== "line")? setShape("line"): setShape("null")}
                 >
                     Line
                 </button>

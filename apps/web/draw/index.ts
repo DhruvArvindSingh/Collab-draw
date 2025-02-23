@@ -1,5 +1,5 @@
 // "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 interface Rectangle {
@@ -94,9 +94,6 @@ export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_heigh
                 "shape": `{ "x": ${startX}, "y": ${startY}, "radius": ${Math.sqrt(width * width + height * height)}, "type": "circle" }`
             }));
         }
-        canvas.removeEventListener("mousedown", handleMouseDown);
-        canvas.removeEventListener("mousemove", handleMouseMove);
-        canvas.removeEventListener("mouseup", handleMouseUp);
         return;
 
     };
@@ -117,6 +114,7 @@ export default function Draw(canvas: HTMLCanvasElement, f_width: number, f_heigh
 
     // Return cleanup function
     return () => {
+        console.log("Cleaning up listeners");
         canvas.removeEventListener("mousedown", handleMouseDown);
         canvas.removeEventListener("mousemove", handleMouseMove);
         canvas.removeEventListener("mouseup", handleMouseUp);

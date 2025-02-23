@@ -24,7 +24,7 @@ export default function mainCanvas({
             };
             fetchShapes();
         }
-    }, [shapesFetched, room_id]);
+    }, [shapesFetched]);
 
     useEffect(() => {
         if (canvasRef.current && shapesFetched) {
@@ -32,8 +32,15 @@ export default function mainCanvas({
             Draw(canvas, 2000, 2000, shape, room_id, socket, Shape);
         }
         return () => {
+            if (canvasRef.current) {
+                const canvas = canvasRef.current;
+                canvas.removeEventListener("mousedown", () => {});
+                canvas.removeEventListener("mousemove", () => {});
+                canvas.removeEventListener("mouseup", () => {});
+            }
             setShape([]);
         }
+
     }, [canvasRef, shape]);
 
     return (
