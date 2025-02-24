@@ -7,13 +7,15 @@ export default function mainCanvas({
     socket,
     room_id,
     color,
-    lineWidth
+    lineWidth,
+    radius
 }: {
     S_shape: string,
     socket: WebSocket,
     room_id: string,
     color: string,
-    lineWidth: number
+    lineWidth: number,
+    radius: number
 }) {
     const [game, setGame] = useState<Game | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -28,7 +30,9 @@ export default function mainCanvas({
     useEffect(() => {
         game?.setLineWidth(lineWidth);
     }, [game, lineWidth]);
-
+    useEffect(() => {
+        game?.setRadius(radius);
+    }, [game, radius]);
     useEffect(() => {
         if (canvasRef.current) {
             const canvas = canvasRef.current;

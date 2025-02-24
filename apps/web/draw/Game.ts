@@ -14,9 +14,10 @@ export default class Game {
     private height: number = 0;
     private prevX: number = 0;
     private prevY: number = 0;
+    private radius: number = 5;
     private lineWidth: number = 5;
     private color: string;
-    constructor(canvas: HTMLCanvasElement, S_shape: string, room_id: string, socket: WebSocket, color: string, lineWidth: number) {
+    constructor(canvas: HTMLCanvasElement, S_shape: string, room_id: string, socket: WebSocket, color: string, lineWidth: number, radius: number) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
         this.S_shape = S_shape;
@@ -24,6 +25,7 @@ export default class Game {
         this.socket = socket;
         this.color = color;
         this.lineWidth = lineWidth;
+        this.radius = radius;
         if (this.ctx) {
             this.fetchShapes();
             this.initialize();
@@ -49,6 +51,10 @@ export default class Game {
         console.log("Setting line width", lineWidth);
         this.lineWidth = lineWidth;
         this.ctx!.lineWidth = this.lineWidth;
+    }
+    setRadius(radius: number) {
+        console.log("Setting radius", radius);
+        this.radius = radius;
     }
     initialize() {
         this.socket.onmessage = (message) => {
@@ -77,7 +83,7 @@ export default class Game {
         
     }
     handleMouseMove = (e: MouseEvent) => {
-        console.log("Mouse move with S_shape", this.S_shape);
+        // console.log("Mouse move with S_shape", this.S_shape);
         // console.log("Mouse move", e);
         if (this.clicked) {
             this.width = e.clientX - this.startX;
@@ -87,7 +93,9 @@ export default class Game {
             // console.log("after drawShape");
             if (this.S_shape === "rect") {
                 this.ctx!.strokeStyle = this.color;
-                this.ctx!.strokeRect(this.startX, this.startY, this.width, this.height);
+                this.ctx!.beginPath();
+                this.ctx!.roundRect(this.startX, this.startY, this.width, this.height, this.radius);
+                this.ctx!.stroke();
             }
             else if (this.S_shape === "circle") {
                 this.ctx!.strokeStyle = this.color;
@@ -131,11 +139,11 @@ export default class Game {
         console.log("Move up line width", this.lineWidth);
         this.clicked = false;
         if (this.S_shape === "rect") {
-            this.Shape.push({ x: this.startX, y: this.startY, width: this.width, height: this.height, type: "rect", lineWidth: this.lineWidth });
+            this.Shape.push({ x: this.startX, y: this.startY, width: this.width, height: this.height, type: "rect", lineWidth: this.lineWidth, radius: this.radius });
             this.socket.send(JSON.stringify({
                 "type": "update_shape",
                 "room_id": this.room_id,
-                "shape": `{ "x": ${this.startX}, "y": ${this.startY}, "width": ${this.width}, "height": ${this.height}, "type": "rect", "color": "${this.color}", "lineWidth": ${this.lineWidth} }`
+                "shape": `{ "x": ${this.startX}, "y": ${this.startY}, "width": ${this.width}, "height": ${this.height}, "type": "rect", "color": "${this.color}", "lineWidth": ${this.lineWidth}, "radius": ${this.radius} }`
             }));
 
         } else if (this.S_shape === "circle") {
@@ -167,9 +175,12 @@ export default class Game {
         console.log("drawing shapes before map");
         this.Shape.map((item) => {
             if (item.type === "rect") {
+                console.log("drawing rect with radius", item.radius);
                 this.ctx!.strokeStyle = item.color;
                 this.ctx!.lineWidth = item.lineWidth;
-                this.ctx?.strokeRect(item.x, item.y, item.width, item.height);
+                this.ctx?.beginPath();
+                this.ctx?.roundRect(item.x, item.y, item.width, item.height, item.radius);
+                this.ctx?.stroke();
             } else if (item.type === "circle") {
                 this.ctx!.lineWidth = item.lineWidth;
                 this.ctx!.strokeStyle = item.color;

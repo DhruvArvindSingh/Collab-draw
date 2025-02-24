@@ -12,6 +12,7 @@ export default function Canvas({
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [color, setColor] = useState("white");
     const [lineWidth, setLineWidth] = useState(3);
+    const [radius, setRadius] = useState(5);
     useEffect(() => {
         const socket = new WebSocket(`${WS_URL}?token=${Cookies.get("token")}`);
         socket.onopen = () => {
@@ -334,12 +335,38 @@ export default function Canvas({
                 <div style={{
                     color: 'white',
                     textAlign: 'center',
+                    marginTop: '5px',
+                    fontSize: '12px'
+                }}>
+                </div>
+                <div style={{
+                    color: 'white',
+                    marginBottom: '2px',
+                    fontSize: '14px'
+                }}>
+                    Border Radius: {radius}
+                </div>
+                <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={radius}
+                    onChange={(e) => setRadius(parseFloat(e.target.value))}
+                    style={{
+                        width: '100px',
+                        accentColor: '#555'
+                    }}
+                />
+                <div style={{
+                    color: 'white',
+                    textAlign: 'center',
                     // marginTop: '3px',
                     fontSize: '12px'
                 }}>
                 </div>
             </div>
-            <MainCanvas socket={socket} S_shape={shape} room_id={room_id} color={color} lineWidth={lineWidth} />
+            <MainCanvas socket={socket} S_shape={shape} room_id={room_id} color={color} lineWidth={lineWidth} radius={radius} />
 
         </div>
     )
