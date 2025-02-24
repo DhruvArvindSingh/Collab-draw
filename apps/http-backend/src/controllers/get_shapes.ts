@@ -18,7 +18,7 @@ export default async function get_shapes(req: Request, res: Response){
         orderBy: {
             id: "desc"
         },
-        take:50
+        take:10000
     });
     res.status(200).json({ shapes });
 }

@@ -12,6 +12,8 @@ export default class Game {
     private startY: number = 0;
     private width: number = 0;
     private height: number = 0;
+    private prevX: number = 0;
+    private prevY: number = 0;
     private lineWidth: number = 5;
     private color: string;
     constructor(canvas: HTMLCanvasElement, S_shape: string, room_id: string, socket: WebSocket, color: string, lineWidth: number) {
@@ -66,19 +68,23 @@ export default class Game {
         this.canvas.addEventListener("mouseup", this.handleMouseUp);
     }
     handleMouseDown = (e: MouseEvent) => {
-        console.log("Mouse down", e);
+        // console.log("Mouse down", e);
+        // console.log("S_shape", this.S_shape);
         this.clicked = true;
         this.startX = e.clientX;
         this.startY = e.clientY;
+        (this.S_shape === "doodle") ? (this.prevX = e.clientX, this.prevY = e.clientY) : null;
+        
     }
     handleMouseMove = (e: MouseEvent) => {
-        console.log("Mouse move", e);
+        console.log("Mouse move with S_shape", this.S_shape);
+        // console.log("Mouse move", e);
         if (this.clicked) {
             this.width = e.clientX - this.startX;
             this.height = e.clientY - this.startY;
-            console.log("before drawShape");
+            // console.log("before drawShape");
             this.drawShape();
-            console.log("after drawShape");
+            // console.log("after drawShape");
             if (this.S_shape === "rect") {
                 this.ctx!.strokeStyle = this.color;
                 this.ctx!.strokeRect(this.startX, this.startY, this.width, this.height);
@@ -86,7 +92,7 @@ export default class Game {
             else if (this.S_shape === "circle") {
                 this.ctx!.strokeStyle = this.color;
                 this.ctx!.beginPath();
-                this.ctx!.moveTo(this.startX, this.startY);
+                // this.ctx!.moveTo(this.startX, this.startY);
                 this.ctx!.arc(this.startX, this.startY, Math.sqrt(this.width * this.width + this.height * this.height), 0, 2 * Math.PI);
                 this.ctx!.stroke();
             }
@@ -94,14 +100,29 @@ export default class Game {
                 this.ctx!.strokeStyle = this.color;
                 this.ctx!.beginPath();
                 this.ctx!.moveTo(this.startX, this.startY);
-                this.ctx!.lineTo(e.clientX, e.clientY);
+                this.ctx!.lineTo(e.clientX - this.canvas.offsetLeft, e.clientY);
                 this.ctx!.stroke();
             }
             else if (this.S_shape === "doodle") {
+                console.log("Doodle");
                 // this.ctx!.lineWidth = 5;
                 this.ctx!.lineCap = 'round';
-                this.ctx!.lineTo(e.clientX - this.canvas.offsetLeft, e.clientY);
+                console.log("prevX", this.prevX);
+                console.log("prevY", this.prevY);
+                console.log("e.clientX", e.clientX);
+                console.log("e.clientY", e.clientY);
+                this.ctx!.beginPath();
+                this.ctx!.moveTo(this.prevX, this.prevY);
+                this.ctx!.lineTo(e.clientX, e.clientY);
                 this.ctx!.stroke();
+                this.Shape.push({ x: this.prevX, y: this.prevY, x2: e.clientX, y2: e.clientY, type: "line", lineWidth: this.lineWidth });
+                this.socket.send(JSON.stringify({
+                    "type": "update_shape",
+                    "room_id": this.room_id,
+                    "shape": `{ "x": ${this.prevX}, "y": ${this.prevY}, "x2": ${e.clientX}, "y2": ${e.clientY}, "type": "line", "color": "${this.color}", "lineWidth": ${this.lineWidth} }`
+                }));
+                this.prevX = e.clientX;
+                this.prevY = e.clientY;
             }
         }
     }
@@ -134,10 +155,8 @@ export default class Game {
             }));
         }
         else if (this.S_shape === "doodle") {
-            this.ctx?.stroke();
-            this.ctx?.beginPath();
-            this.ctx?.lineTo(e.clientX - this.canvas.offsetLeft, e.clientY);
-            this.ctx?.stroke();
+            this.ctx!.stroke();
+            this.ctx!.beginPath();
         }
     }
     drawShape() {
