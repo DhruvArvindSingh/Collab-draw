@@ -12,14 +12,16 @@ export default class Game {
     private startY: number = 0;
     private width: number = 0;
     private height: number = 0;
+    private lineWidth: number = 5;
     private color: string;
-    constructor(canvas: HTMLCanvasElement, S_shape: string, room_id: string, socket: WebSocket, color: string) {
+    constructor(canvas: HTMLCanvasElement, S_shape: string, room_id: string, socket: WebSocket, color: string, lineWidth: number) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
         this.S_shape = S_shape;
         this.room_id = room_id;
         this.socket = socket;
         this.color = color;
+        this.lineWidth = lineWidth;
         if (this.ctx) {
             this.fetchShapes();
             this.initialize();
@@ -40,6 +42,11 @@ export default class Game {
     setColor(color: string) {
         console.log("Setting color", color);
         this.color = color;
+    }
+    setLineWidth(lineWidth: number) {
+        console.log("Setting line width", lineWidth);
+        this.lineWidth = lineWidth;
+        this.ctx!.lineWidth = this.lineWidth;
     }
     initialize() {
         this.socket.onmessage = (message) => {
@@ -79,6 +86,7 @@ export default class Game {
             else if (this.S_shape === "circle") {
                 this.ctx!.strokeStyle = this.color;
                 this.ctx!.beginPath();
+                this.ctx!.moveTo(this.startX, this.startY);
                 this.ctx!.arc(this.startX, this.startY, Math.sqrt(this.width * this.width + this.height * this.height), 0, 2 * Math.PI);
                 this.ctx!.stroke();
             }
@@ -89,34 +97,47 @@ export default class Game {
                 this.ctx!.lineTo(e.clientX, e.clientY);
                 this.ctx!.stroke();
             }
+            else if (this.S_shape === "doodle") {
+                // this.ctx!.lineWidth = 5;
+                this.ctx!.lineCap = 'round';
+                this.ctx!.lineTo(e.clientX - this.canvas.offsetLeft, e.clientY);
+                this.ctx!.stroke();
+            }
         }
     }
     handleMouseUp = (e: MouseEvent) => {
         console.log("Mouse up", e);
+        console.log("Move up line width", this.lineWidth);
         this.clicked = false;
         if (this.S_shape === "rect") {
-            this.Shape.push({ x: this.startX, y: this.startY, width: this.width, height: this.height, type: "rect" });
+            this.Shape.push({ x: this.startX, y: this.startY, width: this.width, height: this.height, type: "rect", lineWidth: this.lineWidth });
             this.socket.send(JSON.stringify({
                 "type": "update_shape",
                 "room_id": this.room_id,
-                "shape": `{ "x": ${this.startX}, "y": ${this.startY}, "width": ${this.width}, "height": ${this.height}, "type": "rect", "color": "${this.color}" }`
+                "shape": `{ "x": ${this.startX}, "y": ${this.startY}, "width": ${this.width}, "height": ${this.height}, "type": "rect", "color": "${this.color}", "lineWidth": ${this.lineWidth} }`
             }));
 
         } else if (this.S_shape === "circle") {
-            this.Shape.push({ x: this.startX, y: this.startY, radius: Math.sqrt(this.width * this.width + this.height * this.height), type: "circle" });
+            this.Shape.push({ x: this.startX, y: this.startY, radius: Math.sqrt(this.width * this.width + this.height * this.height), type: "circle", lineWidth: this.lineWidth });
             this.socket.send(JSON.stringify({
                 "type": "update_shape",
                 "room_id": this.room_id,
-                "shape": `{ "x": ${this.startX}, "y": ${this.startY}, "radius": ${Math.sqrt(this.width * this.width + this.height * this.height)}, "type": "circle", "color": "${this.color}" }`
+                "shape": `{ "x": ${this.startX}, "y": ${this.startY}, "radius": ${Math.sqrt(this.width * this.width + this.height * this.height)}, "type": "circle", "color": "${this.color}", "lineWidth": ${this.lineWidth} }`
             }));
         }
         else if (this.S_shape === "line") {
-            this.Shape.push({ x: this.startX, y: this.startY, x2: e.clientX, y2: e.clientY, type: "line" });
+            this.Shape.push({ x: this.startX, y: this.startY, x2: e.clientX, y2: e.clientY, type: "line", lineWidth: this.lineWidth });
             this.socket.send(JSON.stringify({
                 "type": "update_shape",
                 "room_id": this.room_id,
-                "shape": `{ "x": ${this.startX}, "y": ${this.startY}, "x2": ${e.clientX}, "y2": ${e.clientY}, "type": "line", "color": "${this.color}" }`
+                "shape": `{ "x": ${this.startX}, "y": ${this.startY}, "x2": ${e.clientX}, "y2": ${e.clientY}, "type": "line", "color": "${this.color}", "lineWidth": ${this.lineWidth} }`
             }));
+        }
+        else if (this.S_shape === "doodle") {
+            this.ctx?.stroke();
+            this.ctx?.beginPath();
+            this.ctx?.lineTo(e.clientX - this.canvas.offsetLeft, e.clientY);
+            this.ctx?.stroke();
         }
     }
     drawShape() {
@@ -128,8 +149,10 @@ export default class Game {
         this.Shape.map((item) => {
             if (item.type === "rect") {
                 this.ctx!.strokeStyle = item.color;
+                this.ctx!.lineWidth = item.lineWidth;
                 this.ctx?.strokeRect(item.x, item.y, item.width, item.height);
             } else if (item.type === "circle") {
+                this.ctx!.lineWidth = item.lineWidth;
                 this.ctx!.strokeStyle = item.color;
                 this.ctx?.beginPath();
                 this.ctx?.arc(item.x, item.y, item.radius, 0, 2 * Math.PI);
@@ -137,12 +160,15 @@ export default class Game {
             }
             else if (item.type === "line") {
                 this.ctx!.strokeStyle = item.color;
+                this.ctx!.lineWidth = item.lineWidth;
                 this.ctx?.beginPath();
                 this.ctx?.moveTo(item.x, item.y);
                 this.ctx?.lineTo(item.x2, item.y2);
                 this.ctx?.stroke();
             }
+            // this.ctx!.lineWidth = this.lineWidth;
         });
+        this.ctx!.lineWidth = this.lineWidth;
     }
     destroy() {
         console.log("Destroying game");

@@ -11,6 +11,7 @@ export default function Canvas({
     const [shape, setShape] = useState("null");
     const [socket, setSocket] = useState<WebSocket | null>(null);
     const [color, setColor] = useState("white");
+    const [lineWidth, setLineWidth] = useState(3);
     useEffect(() => {
         const socket = new WebSocket(`${WS_URL}?token=${Cookies.get("token")}`);
         socket.onopen = () => {
@@ -44,6 +45,36 @@ export default function Canvas({
                 boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
                 zIndex: 1000
             }}>
+                <button
+                    style={{
+                        padding: '8px 16px',
+                        margin: '0 5px',
+                        border: 'none',
+                        borderRadius: '20px',
+                        backgroundColor: shape === "select" ? '#4CAF50' : '#555',
+                        color: 'white',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s'
+                    }}
+                    onClick={() => (shape !== "select")? setShape("select"): setShape("null")}
+                >
+                    Select
+                </button>
+                <button
+                    style={{
+                        padding: '8px 16px',
+                        margin: '0 5px',
+                        border: 'none',
+                        borderRadius: '20px',
+                        backgroundColor: shape === "doodle" ? '#4CAF50' : '#555',
+                        color: 'white',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s'
+                    }}
+                    onClick={() => (shape !== "doodle")? setShape("doodle"): setShape("null")}
+                >
+                    Doodle
+                </button>
                 <button
                     style={{
                         padding: '8px 16px',
@@ -270,7 +301,45 @@ export default function Canvas({
                     ●
                 </button>
             </div>
-            <MainCanvas socket={socket} S_shape={shape} room_id={room_id} color={color} />
+            <div style={{
+                fontFamily: 'Arial, sans-serif',
+                position: 'fixed',
+                bottom: '200px',
+                left: '20px',
+                backgroundColor: '#333',
+                padding: '10px 10px',
+                borderRadius: '10px',
+                boxShadow: '0 2px 10px rgba(29, 29, 29, 0.2)',
+                zIndex: 1000
+            }}>
+                <div style={{
+                    color: 'white',
+                    marginBottom: '2px',
+                    fontSize: '14px'
+                }}>
+                    Line Width: {lineWidth}
+                </div>
+                <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    step="0.5"
+                    value={lineWidth}
+                    onChange={(e) => setLineWidth(parseFloat(e.target.value))}
+                    style={{
+                        width: '100px',
+                        accentColor: '#555'
+                    }}
+                />
+                <div style={{
+                    color: 'white',
+                    textAlign: 'center',
+                    // marginTop: '3px',
+                    fontSize: '12px'
+                }}>
+                </div>
+            </div>
+            <MainCanvas socket={socket} S_shape={shape} room_id={room_id} color={color} lineWidth={lineWidth} />
 
         </div>
     )
