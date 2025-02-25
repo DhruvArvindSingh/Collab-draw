@@ -36,7 +36,7 @@ export default function mainCanvas({
     useEffect(() => {
         if (canvasRef.current) {
             const canvas = canvasRef.current;
-            const g = new Game(canvas, S_shape, room_id, socket, color, lineWidth);
+            const g = new Game(canvas, S_shape, room_id, socket, color, lineWidth, radius);
             setGame(g);
             return () => {
                 g.destroy();

@@ -1,12 +1,13 @@
-import { WebSocketServer, WebSocket } from "ws";
-import jwt from "jsonwebtoken";
+import { WebSocket, WebSocketServer } from "ws";
 import { client } from "@repo/db/client";
-import dotenv from "dotenv";
-dotenv.config();
+import createShape from "./dbquery/createShape.js";
+import deleteShape from "./dbquery/deleteShape.js";
+import findUser from "./utils/findUser.js";
+import verify_token from "./utils/verifyToken.js";
 
 
 const wss = new WebSocketServer({ port: 8080 });
-const { JWT_SECRET } = process.env;
+
 interface User {
     ws: WebSocket;
     user_id: number;
@@ -18,17 +19,7 @@ let users: User[] = [];
 
 // Create WebSocket server attached to the HTTP server
 
-function verify_token(token: string): string | null {
-    const decoded = jwt.verify(token, JWT_SECRET as string);
-    console.log("decoded =", decoded);
-    if (typeof decoded === "string") {
-        return null;
-    }
-    if (!decoded || !decoded.userId) {
-        return null;
-    }
-    return decoded.userId;
-}
+
 
 wss.on("connection", async function connection(ws, request) {
     console.log("Client connected");
@@ -39,10 +30,7 @@ wss.on("connection", async function connection(ws, request) {
     try {
         const queryParams = new URLSearchParams(url.split("?")[1]);
         const token = queryParams.get("token") || "";
-        // console.log("token =", token);
         const user_id = verify_token(token);
-        console.log("user_id =", user_id);
-        // console.log("typeof users =", typeof user_id);
         if (!user_id) {
             ws.close();
             return;
@@ -64,9 +52,10 @@ wss.on("connection", async function connection(ws, request) {
     ws.on("message", async (message) => {
         console.log("message =", message);
         const data = JSON.parse(message.toString());
+        const user = findUser(users, ws);
+        if (!user) return;
         if (data.type === "join_room") { //{type: "join_room", room_id: "1"}
             console.log("join_room data =", data);
-            const user = users.find((user) => user.ws === ws);
             if (user?.room_id.includes(data.room_id)) {
                 console.log("user already in room");
                 return;
@@ -75,45 +64,63 @@ wss.on("connection", async function connection(ws, request) {
             console.log("join_room user =", user);
         }
         if (data.type === "leave_room") { //{type: "leave_room", room_id: "1"}
-            const user = users.find((user) => user.ws === ws);
-            if (user) {
-                if (!user?.room_id.includes(data.room_id)) {
-                    console.log("user not in room");
-                    return;
-                }
-                user.room_id = user.room_id.filter((room) => room !== data.room_id);
-                console.log("leave_room user =", user);
-            } else {
-                console.log("user not found");
+            if (!user?.room_id.includes(data.room_id)) {
+                console.log("user not in room");
                 return;
             }
+            user.room_id = user.room_id.filter((room) => room !== data.room_id);
+            console.log("leave_room user =", user);
         }
-        if (data.type === "update_shape") {
-            //{type: "chat", message: "hello", room_id: "1"}
-            const shape = data.shape;
+        if (data.type === "update_shape") {//{type: "chat", message: "hello", room_id: "1"}
+            let shape = data.shape;
+            const id = data.id;
             const room_id = data.room_id;
-            // console.log("shape shape =", shape);
-            // console.log("shape type =", typeof shape);
-            // console.log("shape.x =", shape.x);
+            console.log("shape shape =", shape);
             // console.log("shape room_id =", room_id);
-            const user = users.find((user) => user.ws === ws);
-            if (!user) {
-                console.log("user not found");
-                return;
-            }
-            const res = await client.shape.create({
-                data: {
-                    shape: `${shape}`,
-                    roomID: parseInt(room_id),
-                    userID: user.user_id
-                }
-            });
+            const res = await createShape(shape, room_id, user.user_id);
+            console.log("res =", res);
             users.forEach((user) => {
                 if (user.room_id.includes(room_id)) {
                     user.ws.send(JSON.stringify({
                         'type': "update_shape",
                         'shape': `${shape}`,
-                        'room_id': `${room_id}`
+                        'room_id': `${room_id}`,
+                        'id': res.id
+                    }));
+                }
+            });
+        }
+        if (data.type === "delete_shape") {
+            console.log("delete_shape data =", data);
+            const shape = JSON.parse(data.shape);
+            console.log("shape =", shape);
+            const room_id = data.room_id;
+            if (!user.room_id.includes(room_id)) {
+                console.log("user not in room");
+                return;
+            }
+            const shapeToDelete = await client.shape.findFirst({
+                where: {
+                    id: shape.id
+                }
+            });
+            console.log("shapeToDelete =", shapeToDelete);
+
+            if (shapeToDelete) {
+                console.log("shapeToDelete =", shapeToDelete);
+                const res = await deleteShape(shapeToDelete.id);
+                console.log("res =", res);
+            }
+            users.forEach((user) => {
+                if (user.room_id.includes(room_id)) {
+                    console.log("sending delete_shape to user =", user);
+                    console.log("shape =", shape);
+                    console.log("room_id =", room_id);
+                    console.log("shape.id =", shape.id);
+                    user.ws.send(JSON.stringify({
+                        'type': "delete_shape",
+                        'id': shape.id,
+                        'room_id': room_id
                     }));
                 }
             });

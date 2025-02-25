@@ -320,24 +320,24 @@ export default function Canvas({
                 }}>
                     Line Width: {lineWidth}
                 </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    step="0.5"
-                    value={lineWidth}
-                    onChange={(e) => setLineWidth(parseFloat(e.target.value))}
-                    style={{
-                        width: '100px',
-                        accentColor: '#555'
-                    }}
-                />
                 <div style={{
-                    color: 'white',
-                    textAlign: 'center',
-                    marginTop: '5px',
-                    fontSize: '12px'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
                 }}>
+                    <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        step="0.5"
+                        value={lineWidth}
+                        onChange={(e) => setLineWidth(parseFloat(e.target.value))}
+                        style={{
+                            width: '100px',
+                            accentColor: '#555'
+                        }}
+                    />
+                    
                 </div>
                 <div style={{
                     color: 'white',
@@ -346,24 +346,78 @@ export default function Canvas({
                 }}>
                     Border Radius: {radius}
                 </div>
-                <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={radius}
-                    onChange={(e) => setRadius(parseFloat(e.target.value))}
-                    style={{
-                        width: '100px',
-                        accentColor: '#555'
-                    }}
-                />
                 <div style={{
-                    color: 'white',
-                    textAlign: 'center',
-                    // marginTop: '3px',
-                    fontSize: '12px'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
                 }}>
+                    <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={radius}
+                        onChange={(e) => setRadius(parseFloat(e.target.value))}
+                        style={{
+                            width: '100px',
+                            accentColor: '#555'
+                        }}
+                    />
+                </div>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginTop: '10px',
+                    gap: '10px'
+                }}>
+                    <button
+                        style={{
+                            backgroundColor: '#555',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: 'pointer',
+                            flex: 1
+                        }}
+                        id="clear-btn"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 25 25" fill="currentColor">
+                            <path d="M5 13h14v-2H5v2zm-2 4h14v-2H3v2zM7 7v2h14V7H7z"/>
+                        </svg>
+                    </button>
+                    <button
+                        style={{
+                            backgroundColor: '#555',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: 'pointer',
+                            flex: 1
+                        }}
+                        id="undo-btn"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+                        </svg>
+                    </button>
+                    <button
+                        style={{
+                            backgroundColor: '#d32f2f',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '6px 12px',
+                            cursor: 'pointer',
+                            flex: 1
+                        }}
+                        id="delete-btn"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <MainCanvas socket={socket} S_shape={shape} room_id={room_id} color={color} lineWidth={lineWidth} radius={radius} />
