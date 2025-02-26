@@ -69,13 +69,15 @@ export default class Game {
         console.log("Setting color", color);
         this.color = color;
         if (this.selectedShapes.length > 0) {
-            this.selectedShapes.forEach((item) => {
+            this.selectedShapes.forEach((item, index) => {
                 // console.log("Setting color for shape", item.index);
                 this.Shape[item.index].color = color;
+                this.selectedShapes[index].prevColor = color;
                 // console.log("Shape after setting color", this.Shape[item.index]);
             });
             this.drawShape();
         }
+
     }
     setLineWidth(lineWidth: number) {
         console.log("Setting line width", lineWidth);
@@ -361,11 +363,14 @@ export default class Game {
         return shapeIndex;
     }
     addListener(indexs: number[]) {
+        console.log("Adding listener for ", indexs);
         const deleteButton = document.getElementById(`delete-btn`);
         deleteButton?.addEventListener("click", () => {
-            this.Shape = this.Shape.filter((index) => {
-                // console.log("item", item);
+            console.log("Deleting shapes", indexs);
+            this.Shape = this.Shape.filter((item, index) => {
+                // console.log("index", index);
                 if (indexs.includes(index)) {
+                    console.log("index", index);
                     if (this.Shape[index].id == undefined || this.Shape[index].id == null) {
                         console.error("shape id is undefined");
                         return false;
