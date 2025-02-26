@@ -43,14 +43,14 @@ export default class Game {
     setShape(shape: string) {
         console.log("Setting shape", shape);
         this.S_shape = shape;
-        this.sendchanges();
         if (this.selectedShapes.length > 0) {
-            // console.log("Selected shapes length", this.selectedShapes.length);
+            console.log("Selected shapes length", this.selectedShapes.length);
             this.selectedShapes.forEach((item) => {
                 // console.log("Setting color for shape", item.index);
                 this.Shape[item.index].color = item.prevColor;
                 console.log("Shape after setting color", this.Shape[item.index]);
             });
+            this.sendchanges();
             this.selectedShapes = [];
             this.drawShape();
         }
@@ -142,6 +142,8 @@ export default class Game {
             if (data.type === "Change_attribute") {
                 console.log("Change_attribute data", data);
                 const shape = JSON.parse(data.shape);
+                console.log("shape.id =", shape.id);
+                console.log("data.id =", data.id);
                 if(this.Shape[data.id].id == shape.id){
                     console.log("Shape id is same");
                     this.Shape[data.id] = shape;

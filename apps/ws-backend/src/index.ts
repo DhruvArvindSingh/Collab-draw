@@ -136,8 +136,9 @@ wss.on("connection", async function connection(ws, request) {
             const room_id = data.room_id;
             console.log("shape =", shape);
             console.log("room_id =", room_id);
+            console.log("shape.color =", shape.color);
             users.forEach((user) => {
-                if (user.room_id.includes(room_id) && shape.color != "#FFD700") {
+                if (user.room_id.includes(room_id)) {
                     user.ws.send(JSON.stringify(    {
                         'type': "Change_attribute",
                         'shape': `${JSON.stringify(shape)}`,
