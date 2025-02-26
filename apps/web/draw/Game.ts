@@ -43,16 +43,27 @@ export default class Game {
     setShape(shape: string) {
         console.log("Setting shape", shape);
         this.S_shape = shape;
+        this.sendchanges();
         if (this.selectedShapes.length > 0) {
             // console.log("Selected shapes length", this.selectedShapes.length);
             this.selectedShapes.forEach((item) => {
                 // console.log("Setting color for shape", item.index);
                 this.Shape[item.index].color = item.prevColor;
-                // console.log("Shape after setting color", this.Shape[item.index]);
+                console.log("Shape after setting color", this.Shape[item.index]);
             });
             this.selectedShapes = [];
             this.drawShape();
         }
+    }
+    sendchanges(){
+        this.selectedShapes.forEach((item) => {
+            this.socket.send(JSON.stringify({
+                'type':"Change_attribute",
+                'shape':`${JSON.stringify(this.Shape[item.index])}`,
+                'room_id':this.room_id,
+                'id':item.index
+            }));
+        });
     }
     setColor(color: string) {
         console.log("Setting color", color);
@@ -91,7 +102,7 @@ export default class Game {
                     // console.log("Setting radius for rect", radius);
                     this.Shape[item.index].radius = radius;
                     // console.log("Shape after setting radius", this.Shape[item.index]);
-                    
+
                 }
             });
             this.drawShape();
@@ -126,6 +137,25 @@ export default class Game {
                 // console.log("Adding id", data.id);
                 // console.log("Adding id shape_id", data.shape_id);
                 this.Shape[data.shape_id].id = data.id;
+                this.drawShape();
+            }
+            if (data.type === "Change_attribute") {
+                console.log("Change_attribute data", data);
+                const shape = JSON.parse(data.shape);
+                if(this.Shape[data.id].id == shape.id){
+                    console.log("Shape id is same");
+                    this.Shape[data.id] = shape;
+                }
+                else{
+                    console.log("Shape id is not same");
+                    this.Shape.find((item) => {
+                        if(item.id == shape.id){
+                            this.Shape[data.id] = shape;
+                            return true;
+                        }
+                        return false;
+                    });
+                }
                 this.drawShape();
             }
         }

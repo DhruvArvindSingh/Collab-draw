@@ -4,9 +4,13 @@ import createShape from "./dbquery/createShape.js";
 import deleteShape from "./dbquery/deleteShape.js";
 import findUser from "./utils/findUser.js";
 import verify_token from "./utils/verifyToken.js";
+import dotenv from "dotenv";
+dotenv.config();
+
+const { PORT } = process.env;
 
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ port: parseInt(PORT as string) });
 
 interface User {
     ws: WebSocket;
@@ -52,6 +56,7 @@ wss.on("connection", async function connection(ws, request) {
     ws.on("message", async (message) => {
         console.log("message =", message);
         const data = JSON.parse(message.toString());
+        console.log("data =", data);
         const user = findUser(users, ws);
         if (!user) return;
         if (data.type === "join_room") { //{type: "join_room", room_id: "1"}
@@ -122,6 +127,34 @@ wss.on("connection", async function connection(ws, request) {
                         'id': shape.id,
                         'room_id': room_id
                     }));
+                }
+            });
+        }
+        if (data.type === "Change_attribute") {
+            console.log("Change_attribute data =", data);
+            const shape = JSON.parse(data.shape);
+            const room_id = data.room_id;
+            console.log("shape =", shape);
+            console.log("room_id =", room_id);
+            users.forEach((user) => {
+                if (user.room_id.includes(room_id) && shape.color != "#FFD700") {
+                    user.ws.send(JSON.stringify(    {
+                        'type': "Change_attribute",
+                        'shape': `${JSON.stringify(shape)}`,
+                        'room_id': `${room_id}`,
+                        'id': data.id
+                    }));
+                }
+            });
+            const id = shape.id;
+            delete shape.id;
+            console.log("shape after deleting id =", shape);
+            await client.shape.update({
+                where: {
+                    id: id
+                },
+                data: {
+                    shape: `${JSON.stringify(shape)}`
                 }
             });
         }
