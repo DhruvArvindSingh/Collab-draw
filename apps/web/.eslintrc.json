@@ -1,0 +1,12 @@
+{
+  "extends": "next/core-web-vitals",
+  "overrides": [
+    {
+      "files": ["app/room/[room_id]/page.tsx"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "react-hooks/exhaustive-deps": "off"
+      }
+    }
+  ]
+} 

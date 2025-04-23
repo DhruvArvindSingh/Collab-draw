@@ -4,11 +4,13 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-const {JWT_SECRET} = process.env;
+// const {JWT_SECRET} = process.env;
+const JWT_SECRET = "secret";
+
 
 export default async function signin_post(req: Request, res: Response){
     console.log("post signin received");
-    const { email, password } = req.body;
+        const { email, password } = req.body;
     console.log("email =",email);
     console.log("password =",password);
     const ress = await client.user.findUnique({

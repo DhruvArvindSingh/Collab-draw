@@ -1,0 +1,1 @@
+{"version":3,"file":"email_format.d.ts","sourceRoot":"","sources":["../../src/middleware/email_format.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAE1D,MAAM,CAAC,OAAO,UAAU,YAAY,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,EAAE,IAAI,EAAE,YAAY,QAInF"}

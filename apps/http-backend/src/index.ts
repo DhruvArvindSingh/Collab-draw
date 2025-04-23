@@ -12,6 +12,8 @@ import validate_users from "./middleware/validate_users.js";
 import dotenv from "dotenv";
 import verify from "./middleware/verify.js";
 
+const PORT = process.env.HTTP_URL || 3001;
+
 dotenv.config();
 const app = express();
 
@@ -27,7 +29,7 @@ app.post("/signin", email_format, check_email, signin_post);
 app.post("/create_room", verify, create_room);
 app.post("/shapes/:room_id", verify, get_shapes);
 
-app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
 

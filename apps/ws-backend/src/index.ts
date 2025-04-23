@@ -7,10 +7,15 @@ import verify_token from "./utils/verifyToken.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const { PORT } = process.env;
+const PORT = process.env.WS_URL || 3002;
 
+// Fix port parsing and validation
+const parsedPort = typeof PORT === 'string' ? parseInt(PORT, 10) : PORT;
+if (isNaN(parsedPort) || parsedPort < 0 || parsedPort > 65535) {
+    throw new Error(`Invalid port number: ${PORT}`);
+}
 
-const wss = new WebSocketServer({ port: parseInt(PORT as string) });
+const wss = new WebSocketServer({ port: parsedPort });
 
 interface User {
     ws: WebSocket;
@@ -27,13 +32,19 @@ let users: User[] = [];
 
 wss.on("connection", async function connection(ws, request) {
     console.log("Client connected");
+    console.log("request =", request);
+    console.log("request.url =", request.url);
+    console.log("request.headers =", request.headers);
     const url = request.url;
     if (!url) {
         return;
     }
     try {
+        console.log("url =", url);
         const queryParams = new URLSearchParams(url.split("?")[1]);
+        console.log("queryParams =", queryParams);
         const token = queryParams.get("token") || "";
+        console.log("token =", token);
         const user_id = verify_token(token);
         if (!user_id) {
             ws.close();
@@ -47,6 +58,7 @@ wss.on("connection", async function connection(ws, request) {
         console.log("users =", users);
     }
     catch (error) {
+        console.log("error =", error);
         ws.close();
         console.log("Unauthorized user with no token");
         return;
